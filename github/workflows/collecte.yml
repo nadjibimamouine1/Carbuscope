@@ -1,0 +1,1 @@
+yaml name: Collecteur automatique on:   workflow_dispatch scheduled - cron: '0 6 * * *' permissions: contents: write jobs collecte runs-on: ubuntu-latest steps - name: Récupérer le dépôt uses: actions/checkout@v4 - name Installer Python uses: actions/setup-python@v5 with python-version: '3.x' - name Lancer la collecte run echo "Collecteur à configurer lors d'une prochaine étape."
