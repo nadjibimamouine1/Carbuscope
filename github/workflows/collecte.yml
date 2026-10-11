@@ -1,1 +1,40 @@
-yaml name: Collecteur automatique on:   workflow_dispatch scheduled - cron: '0 6 * * *' permissions: contents: write jobs collecte runs-on: ubuntu-latest steps - name: Récupérer le dépôt uses: actions/checkout@v4 - name Installer Python uses: actions/setup-python@v5 with python-version: '3.x' - name Lancer la collecte run echo "Collecteur à configurer lors d'une prochaine étape."
+name: Collecte automatique des prix carburants
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  collecte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Collecter les prix
+        run: python collecte.py
+
+      - name: Enregistrer les données
+        run: |
+          if git diff --quiet -- data/prix_carburants.json; then
+            echo "Aucune modification des données."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/prix_carburants.json
+          git commit -m "Mise à jour des prix carburants"
+          git push
